@@ -3,7 +3,9 @@
 import { Search } from "lucide-react"
 import { Input } from "./ui/input"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
+import qs from "query-string"
 
 export const SearchInput = () => {
     const router = useRouter();
@@ -13,10 +15,34 @@ export const SearchInput = () => {
     const name = searchParams.get("name");
 
     const [value, setValue] = useState(name || '');
+    const debouncedValue = useDebounce<string>(value, 500);
+
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(e.target.value);
+    };
+
+    useEffect(() => {
+        const query = {
+            name: debouncedValue,
+            categoryId
+        };
+        const url = qs.stringifyUrl({
+            url: window.location.href,
+            query,
+        }, {
+            skipNull: true, 
+            skipEmptyString: true
+        });
+
+        router.push(url);
+    }, [router, categoryId, debouncedValue])
+
     return (
         <div className="relative">
             <Search className="absolute h-4 w-4 top-3 left-4 text-muted-foreground" />
-            <Input 
+            <Input
+                onChange={onChange}
+                value={value}
                 placeholder="Search..."
                 className="pl-10 bg-primary/10" 
             />
