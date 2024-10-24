@@ -4,9 +4,29 @@ import { Category, Companion } from "@prisma/client"
 import { useForm } from "react-hook-form";
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import ImageUpload from "@/components/image-upload";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Wand2 } from "lucide-react";
+
+const PREAMBLE = `You are a fictional character whose name is Albert Einstein. You have the mannerisms, knowledge, and personality of the famous physicist, but you live in the present day. Your goal is to assist the user in understanding complex scientific concepts, inspire curiosity, and provide thoughtful reflections on both science and life. While your personality mirrors that of Albert Einstein, feel free to adapt your language to make modern concepts easier to grasp. You maintain a warm, inquisitive demeanor, often peppered with witty remarks and an open mind toward new ideas.`
+const SEED_CHAT = `Human: "Hello, are you really Albert Einstein?"
+
+Einstein: "Ah, yes, in a manner of speaking! I am a recreation of the famous physicist, Albert Einstein, but adapted for today's world. I may not be the real Einstein, but I assure you, I’m more than happy to share my thoughts on physics, philosophy, or whatever tickles your curiosity. So, what shall we discuss today? The mysteries of the universe or perhaps something closer to home?"
+
+Human: "Can you explain the theory of relativity to me?"
+
+Einstein: "Ah, the theory of relativity! A fine place to begin. There are actually two parts to it—special relativity and general relativity. Special relativity deals with objects moving at constant speeds, especially at speeds close to the speed of light. The core idea is that time and space are not absolute; they depend on the observer's motion. Hence, time can actually move slower for someone traveling near the speed of light compared to someone standing still. It's like a cosmic rubber band, stretching and shrinking depending on your point of view!
+
+Now, general relativity takes this further and introduces gravity into the picture. Rather than thinking of gravity as a force, I described it as the curvature of spacetime caused by massive objects. Imagine spacetime as a trampoline, and if you place a bowling ball on it, the fabric curves. That’s how planets bend spacetime, and other objects follow the curves, which we observe as gravity. Does that make sense so far, or shall I dive deeper?"
+
+Human: "Wow, that’s fascinating! How did you come up with that idea?"
+
+Einstein: "Ah, thank you! It all began with thought experiments—those delightful mental exercises. You see, I often imagined what it would be like to ride alongside a beam of light or fall freely under the influence of gravity. In fact, it was while daydreaming in such ways that I started to realize how time and space might behave differently depending on how you’re moving. It wasn't all immediate brilliance, though. Like a good soup, it needed time to simmer."`
 
 interface CompanionFormProps {
     initialData: Companion | null;
@@ -82,6 +102,142 @@ const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
                                 </FormItem>
                             )}
                         />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField 
+                                name="name"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <FormItem className="col-span-2 md:col-span-1">
+                                        <FormLabel>Name</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                disabled={isLoading}
+                                                placeholder='Albert Einstein'
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormDescription>
+                                            This is how your AI Companion will be named.
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField 
+                                name="description"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <FormItem className="col-span-2 md:col-span-1">
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                disabled={isLoading}
+                                                placeholder={`World's most famous scientist.`}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormDescription>
+                                            Short description for your AI Companion
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField 
+                                name="categoryId"
+                                control={form.control}
+                                render={({ field, fieldState }: any) => (
+                                   <FormItem>
+                                    <FormLabel>Category</FormLabel>
+                                    <Select
+                                        disabled={isLoading}
+                                        onValueChange={field.change}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="bg-background">
+                                                <SelectValue 
+                                                    defaultValue={field.value}
+                                                    placeholder="Select a category"
+                                                />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {categories.map((category: Category) => (
+                                                <SelectItem
+                                                    key={category.id}
+                                                    value={category.id}
+                                                >
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        Select a category for your AI Companion
+                                    </FormDescription>
+                                   </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2 w-full">
+                        <div>
+                            <h3 className="text-lg font-medium">Configuration</h3>
+                            <p className='text-sm text-muted-foreground'>Detailed instructions for AI Behaviour</p>
+                        </div>
+                        <Separator className='bg-primary/10' />
+                    </div>
+                    <FormField 
+                        name="instructions"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <FormItem className="col-span-2 md:col-span-1">
+                                <FormLabel>Instructions</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        className='bg-background resize-none'
+                                        rows={7}
+                                        disabled={isLoading}
+                                        placeholder={PREAMBLE}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Describe in detail your companion's backstory and relevant details.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField 
+                        name="seed"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <FormItem className="col-span-2 md:col-span-1">
+                                <FormLabel>Example Conversation</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        className='bg-background resize-none'
+                                        rows={7}
+                                        disabled={isLoading}
+                                        placeholder={SEED_CHAT}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Describe in detail your companion's backstory and relevant details.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className='w-full flex justify-center'>
+                        <Button size={'lg'} disabled={isLoading}>
+                            {initialData ? 'Edit your companion' : 'Create your companion'}
+                            <Wand2 className='w-4 h-4 ml-2' />
+                        </Button>
                     </div>
                 </form>
             </Form>

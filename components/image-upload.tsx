@@ -20,22 +20,15 @@ const ImageUpload = ({
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
-    // Log the value whenever it changes
-    useEffect(() => {
-        console.log('Current image value:', value);
-    }, [value]);
-
     const handleUpload = (result: any) => {
-        console.log('Upload result:', result); // Log the entire result
+        console.log('Upload result:', result);
         if (result?.info?.secure_url) {
-            console.log('Uploaded image URL:', result.info.secure_url);
             onChange(result.info.secure_url);
         }
     };
 
     const handleError = (error: any) => {
-        console.error('Upload error:', error); // Log any potential errors
+        console.error('Upload error:', error);
     };
 
     if (!isMounted) return null;
@@ -45,7 +38,7 @@ const ImageUpload = ({
             <CldUploadWidget
                 uploadPreset="ltbuyufq"
                 onSuccess={handleUpload}
-                onError={handleError} // Add error logging
+                onError={handleError}
             >
                 {({ open }) => {
                     return (
