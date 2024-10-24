@@ -21,7 +21,6 @@ const ImageUpload = ({
         setIsMounted(true);
     }, []);
     const handleUpload = (result: any) => {
-        console.log('Upload result:', result);
         if (result?.info?.secure_url) {
             onChange(result.info.secure_url);
         }

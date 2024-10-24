@@ -12,6 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
+import axios from 'axios';
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const PREAMBLE = `You are a fictional character whose name is Albert Einstein. You have the mannerisms, knowledge, and personality of the famous physicist, but you live in the present day. Your goal is to assist the user in understanding complex scientific concepts, inspire curiosity, and provide thoughtful reflections on both science and life. While your personality mirrors that of Albert Einstein, feel free to adapt your language to make modern concepts easier to grasp. You maintain a warm, inquisitive demeanor, often peppered with witty remarks and an open mind toward new ideas.`
 const SEED_CHAT = `Human: "Hello, are you really Albert Einstein?"
@@ -55,6 +58,8 @@ const formSchema = z.object({
 })
 
 const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
+    const { toast } = useToast();
+    const router = useRouter();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: initialData || {
@@ -70,7 +75,24 @@ const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
     const isLoading = form.formState.isSubmitting;
     
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values)
+        try {
+            if (initialData) {
+                await axios.patch(`/api/companion/${initialData.id}`, values);
+            } else {
+                await axios.post(`/api/companion`, values);
+            }
+            toast({
+                variant: "default",
+                description: "Companion created successfully!"
+            });
+            router.refresh();
+            // router.push('/');
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                description: 'Something went wrong!'
+            });
+        }
     }
 
     return (
@@ -151,7 +173,7 @@ const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
                                     <FormLabel>Category</FormLabel>
                                     <Select
                                         disabled={isLoading}
-                                        onValueChange={field.change}
+                                        onValueChange={field.onChange}
                                         value={field.value}
                                         defaultValue={field.value}
                                     >
@@ -177,6 +199,7 @@ const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
                                     <FormDescription>
                                         Select a category for your AI Companion
                                     </FormDescription>
+                                    <FormMessage />
                                    </FormItem>
                                 )}
                             />
@@ -234,7 +257,7 @@ const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
                         )}
                     />
                     <div className='w-full flex justify-center'>
-                        <Button size={'lg'} disabled={isLoading}>
+                        <Button size={'lg'} disabled={isLoading} type="submit">
                             {initialData ? 'Edit your companion' : 'Create your companion'}
                             <Wand2 className='w-4 h-4 ml-2' />
                         </Button>
