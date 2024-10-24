@@ -86,7 +86,7 @@ const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
                 description: "Companion created successfully!"
             });
             router.refresh();
-            // router.push('/');
+            router.push('/');
         } catch (error) {
             toast({
                 variant: 'destructive',

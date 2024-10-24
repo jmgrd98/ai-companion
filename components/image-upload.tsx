@@ -46,7 +46,7 @@ const ImageUpload = ({
                                 <Image
                                     fill
                                     alt="Upload image"
-                                    src={value || "/placeholder.png"}
+                                    src={value || "/placeholder.svg"}
                                     className="rounded-lg object-cover"
                                 />
                             </div>
