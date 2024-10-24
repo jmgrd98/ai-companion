@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { CldUploadButton } from 'next-cloudinary';
+import { CldUploadWidget } from 'next-cloudinary';
 import Image from "next/image";
 
 interface ImageUploadProps {
@@ -9,7 +9,6 @@ interface ImageUploadProps {
     onChange: (src: string) => void;
     disabled: boolean;
 }
-
 
 const ImageUpload = ({
     value,
@@ -22,30 +21,49 @@ const ImageUpload = ({
         setIsMounted(true);
     }, []);
 
+    // Log the value whenever it changes
+    useEffect(() => {
+        console.log('Current image value:', value);
+    }, [value]);
+
+    const handleUpload = (result: any) => {
+        console.log('Upload result:', result); // Log the entire result
+        if (result?.info?.secure_url) {
+            console.log('Uploaded image URL:', result.info.secure_url);
+            onChange(result.info.secure_url);
+        }
+    };
+
+    const handleError = (error: any) => {
+        console.error('Upload error:', error); // Log any potential errors
+    };
+
     if (!isMounted) return null;
 
     return (
         <div className="space-y-4 w-full flex flex-col justify-center items-center">
-            <CldUploadButton
-                onUpload={(result: any) => onChange(result.info.secure_url)}
-                options={{
-                    maxFiles: 1
-                }}
-                uploadPreset="ge8ax5wl"
+            <CldUploadWidget
+                uploadPreset="ltbuyufq"
+                onSuccess={handleUpload}
+                onError={handleError} // Add error logging
             >
-                <div className="p-4 border-4 border-dashed border-primary/10 rounded-lg hover:opacity-75 transition flex flex-col space-y-2 items-center justify-center">
-                    <div className="relative h-40 w-40">
-                        <Image 
-                            fill
-                            alt="Upload image"
-                            src={value || "/placeholder.png"}
-                            className="rounded-lg object-cover"
-                        />
-                    </div>
-                </div>
-            </CldUploadButton>
+                {({ open }) => {
+                    return (
+                        <div onClick={() => open()} className="cursor-pointer p-4 border-4 border-dashed border-primary/10 rounded-lg hover:opacity-75 transition flex flex-col space-y-2 items-center justify-center">
+                            <div className="relative h-40 w-40">
+                                <Image
+                                    fill
+                                    alt="Upload image"
+                                    src={value || "/placeholder.png"}
+                                    className="rounded-lg object-cover"
+                                />
+                            </div>
+                        </div>
+                    );
+                }}
+            </CldUploadWidget>
         </div>
     )
 }
 
-export default ImageUpload
+export default ImageUpload;
