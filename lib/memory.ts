@@ -22,4 +22,6 @@ export class MemoryManager {
             apiKey: process.env.PINECONE_API_KEY,
         });
     }
+
+    
 }
